@@ -90,7 +90,8 @@ public class PaymentSheetExecutor extends Executor {
                     new PaymentSheet.Configuration.Builder(merchantDisplayName)
                             .customer(customer)
                             .defaultBillingDetails(defaultBillingDetails)
-                            .googlePay(new PaymentSheet.GooglePayConfiguration(environment, countryCode)).build();
+                            .googlePay(new PaymentSheet.GooglePayConfiguration(environment, countryCode))
+                            .build();
         }
 
         notifyListenersFunction.accept(PaymentSheetEvents.Loaded.getWebEventName(), emptyObject);
