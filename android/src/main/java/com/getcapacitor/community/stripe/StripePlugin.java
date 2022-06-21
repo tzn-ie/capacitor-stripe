@@ -9,9 +9,9 @@ import com.getcapacitor.community.stripe.googlepay.GooglePayExecutor;
 import com.getcapacitor.community.stripe.helper.MetaData;
 import com.getcapacitor.community.stripe.paymentflow.PaymentFlowExecutor;
 import com.getcapacitor.community.stripe.paymentsheet.PaymentSheetExecutor;
-import com.stripe.android.AppInfo;
 import com.stripe.android.PaymentConfiguration;
 import com.stripe.android.Stripe;
+import com.stripe.android.core.AppInfo;
 import com.stripe.android.googlepaylauncher.GooglePayLauncher;
 import com.stripe.android.paymentsheet.PaymentSheet;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +26,7 @@ public class StripePlugin extends Plugin {
 
     private MetaData metaData;
 
-    private static final String APP_INFO_NAME = "@capacitor-community/stripe";
+    private static final String APP_INFO_NAME = "@capacitor-community/stripe/zur";
 
     private final PaymentSheetExecutor paymentSheetExecutor = new PaymentSheetExecutor(
         this::getContext,

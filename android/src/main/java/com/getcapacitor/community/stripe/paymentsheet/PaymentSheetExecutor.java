@@ -3,8 +3,10 @@ package com.getcapacitor.community.stripe.paymentsheet;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+
 import androidx.activity.ComponentActivity;
 import androidx.core.util.Supplier;
+
 import com.getcapacitor.Bridge;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
@@ -26,10 +28,10 @@ public class PaymentSheetExecutor extends Executor {
     private String paymentIntentClientSecret;
 
     public PaymentSheetExecutor(
-        Supplier<Context> contextSupplier,
-        Supplier<Activity> activitySupplier,
-        BiConsumer<String, JSObject> notifyListenersFunction,
-        String pluginLogTag
+            Supplier<Context> contextSupplier,
+            Supplier<Activity> activitySupplier,
+            BiConsumer<String, JSObject> notifyListenersFunction,
+            String pluginLogTag
     ) {
         super(contextSupplier, activitySupplier, notifyListenersFunction, pluginLogTag, "GooglePayExecutor");
         this.contextSupplier = contextSupplier;
@@ -61,11 +63,20 @@ public class PaymentSheetExecutor extends Executor {
         Boolean enableGooglePay = call.getBoolean("enableGooglePay", false);
 
         final PaymentSheet.CustomerConfiguration customer = customerId != null
-            ? new PaymentSheet.CustomerConfiguration(customerId, customerEphemeralKeySecret)
-            : null;
+                ? new PaymentSheet.CustomerConfiguration(customerId, customerEphemeralKeySecret)
+                : null;
+
+        String countryCode = call.getString("countryCode", "US");
+        PaymentSheet.BillingDetails defaultBillingDetails = new PaymentSheet.BillingDetails.Builder()
+                .address(new PaymentSheet.Address.Builder()
+                        .country(countryCode))
+                .build();
 
         if (!enableGooglePay) {
-            paymentConfiguration = new PaymentSheet.Configuration(merchantDisplayName, customer);
+            paymentConfiguration = new PaymentSheet.Configuration.Builder(merchantDisplayName)
+                    .customer(customer)
+                    .defaultBillingDetails(defaultBillingDetails)
+                    .build();
         } else {
             Boolean GooglePayEnvironment = call.getBoolean("GooglePayIsTesting", false);
 
@@ -76,11 +87,10 @@ public class PaymentSheetExecutor extends Executor {
             }
 
             paymentConfiguration =
-                new PaymentSheet.Configuration(
-                    merchantDisplayName,
-                    customer,
-                    new PaymentSheet.GooglePayConfiguration(environment, call.getString("countryCode", "US"))
-                );
+                    new PaymentSheet.Configuration.Builder(merchantDisplayName)
+                            .customer(customer)
+                            .defaultBillingDetails(defaultBillingDetails)
+                            .googlePay(new PaymentSheet.GooglePayConfiguration(environment, countryCode)).build();
         }
 
         notifyListenersFunction.accept(PaymentSheetEvents.Loaded.getWebEventName(), emptyObject);
@@ -103,8 +113,8 @@ public class PaymentSheetExecutor extends Executor {
             call.resolve(new JSObject().put("paymentResult", PaymentSheetEvents.Canceled.getWebEventName()));
         } else if (paymentSheetResult instanceof PaymentSheetResult.Failed) {
             notifyListenersFunction.accept(
-                PaymentSheetEvents.Failed.getWebEventName(),
-                new JSObject().put("error", ((PaymentSheetResult.Failed) paymentSheetResult).getError().getLocalizedMessage())
+                    PaymentSheetEvents.Failed.getWebEventName(),
+                    new JSObject().put("error", ((PaymentSheetResult.Failed) paymentSheetResult).getError().getLocalizedMessage())
             );
             notifyListenersFunction.accept(PaymentSheetEvents.Failed.getWebEventName(), emptyObject);
             call.resolve(new JSObject().put("paymentResult", PaymentSheetEvents.Failed.getWebEventName()));
