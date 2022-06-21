@@ -30,6 +30,9 @@ class PaymentSheetExecutor: NSObject {
         if merchantDisplayName != "" {
             configuration.merchantDisplayName = merchantDisplayName
         }
+        
+        let countryCode = call.getString("countryCode", "US")
+        configuration.defaultBillingDetails.address.country = countryCode
 
         if #available(iOS 13.0, *) {
             let style = call.getString("style") ?? ""
@@ -45,7 +48,7 @@ class PaymentSheetExecutor: NSObject {
         if call.getBool("enableApplePay", false) && applePayMerchantId != "" {
             configuration.applePay = .init(
                 merchantId: applePayMerchantId,
-                merchantCountryCode: call.getString("countryCode", "US")
+                merchantCountryCode: countryCode
             )
         }
 
